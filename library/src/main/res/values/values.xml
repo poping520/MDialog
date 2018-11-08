@@ -1,0 +1,24 @@
+<resources>
+
+    <dimen name="mdialog_header_color_height">96dp</dimen>
+    <dimen name="mdialog_header_pic_size">48dp</dimen>
+    <dimen name="mdialog_padding_start_end">16dp</dimen>
+    <dimen name="mdialog_padding_top_bottom">12dp</dimen>
+    <dimen name="mdialog_margin_8dp">8dp</dimen>
+    <dimen name="mdialog_position_button_float">3dp</dimen>
+
+    <string name="app_name">MDialog</string>
+    <string name="mdialog_confirm">OK</string>
+    <string name="mdialog_cancel">NO</string>
+
+    <style name="MDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <integer name="mdialog_anim_time">150</integer>
+
+    <declare-styleable name="MDialogButtonLayout">
+        <attr name="allowStacking" />
+    </declare-styleable>
+
+</resources>
