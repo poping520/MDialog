@@ -15,7 +15,6 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.support.annotation.StyleRes;
 import android.support.v7.graphics.Palette;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -41,42 +40,30 @@ public class MDialog extends Dialog {
 
     private Builder p;
 
+    private Context mContext;
+
     private LinearLayout mLayout;
     private ScrollView mContentLayout;
 
     private ImageView mHeaderBg;
     private ImageView mHeaderPic;
 
-    private TextView mTitle;
+    private TextView mTitle, mContentMessage;
 
-    private Button mBtnPositive;
-    private Button mBtnNegative;
-    private Button mBtnNeutral;
+    private Button mBtnPositive, mBtnNegative, mBtnNeutral;
 
     @ColorInt
     private int mAccentColor;
 
-
-    public MDialog(@NonNull Context context) {
-        super(context);
-    }
-
-    public MDialog(@NonNull Context context, @StyleRes int themeResId) {
-        super(context, themeResId);
-    }
-
-    protected MDialog(@NonNull Context context, boolean cancelable, @Nullable OnCancelListener cancelListener) {
-        super(context, cancelable, cancelListener);
-    }
-
     private MDialog(Builder builder) {
-        this(builder.mContext, R.style.MDialog);
+        super(builder.mContext, R.style.MDialog);
         this.p = builder;
+        this.mContext = builder.mContext;
+
+        initDialog();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    private void initDialog() {
         setContentView(R.layout.mdialog_main);
 
         mLayout = findViewById(R.id.mdialog_layout);
@@ -88,9 +75,11 @@ public class MDialog extends Dialog {
         initHeaderPic();
 
         mTitle = findViewById(R.id.mdialog_title);
-        initTitle();
+        setTitle(p.mTitle);
+        if (p.mTitleColor != null) setTitleColor(p.mTitleColor);
 
         mContentLayout = findViewById(R.id.mdialog_content);
+        mContentMessage = findViewById(R.id.mdialog_content_message);
         initContentView();
 
         mBtnPositive = findViewById(R.id.mdialog_positive_btn);
@@ -117,39 +106,55 @@ public class MDialog extends Dialog {
         else if (p.mHeaderPicDrawable != null) mHeaderPic.setImageDrawable(p.mHeaderPicDrawable);
     }
 
-    private void initTitle() {
-        if (p.mTitle != null) mTitle.setText(p.mTitle);
-        if (p.mTitleColor != null) mTitle.setTextColor(p.mTitleColor);
+    public void setTitle(@StringRes int titleId) {
+        setTitle(mContext.getString(titleId));
+    }
+
+    public void setTitle(@Nullable CharSequence title) {
+        mTitle.setText(title);
+    }
+
+    public void setTitleColor(@ColorInt int colorId) {
+        setTitleColor(ColorStateList.valueOf(colorId));
+    }
+
+    public void setTitleColor(@NonNull ColorStateList color) {
+        mTitle.setTextColor(color);
     }
 
     private void initContentView() {
         if (p.mContentView == null) {
-            TextView message = findViewById(R.id.mdialog_content_message);
-            initMessage(message);
+            initMessage();
         } else {
             mContentLayout.removeAllViews();
             mContentLayout.addView(p.mContentView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         }
     }
 
-    private void initMessage(TextView message) {
+    private void initMessage() {
 
         if (p.mHTMLMessage != null) {
             // FROM_HTML_MODE_COMPACT: html块元素之间使用一个换行符分隔
             // FROM_HTML_MODE_LEGACY: html块元素之间使用两个换行符分隔
-            message.setText(
+            mContentMessage.setText(
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ?
                             Html.fromHtml(p.mHTMLMessage, Html.FROM_HTML_MODE_COMPACT) :
                             Html.fromHtml(p.mHTMLMessage)
             );
             //超链接
-            message.setMovementMethod(LinkMovementMethod.getInstance());
-            message.setFocusable(true);
-            message.setClickable(true);
+            mContentMessage.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
-        if (p.mMessage != null) message.setText(p.mMessage);
-        if (p.mMsgColor != null) message.setTextColor(p.mMsgColor);
+        if (p.mMessage != null) setMessage(p.mMessage);
+        if (p.mMsgColor != null) mContentMessage.setTextColor(p.mMsgColor);
+    }
+
+    public void setMessage(@StringRes int messageId) {
+        setMessage(mContext.getString(messageId));
+    }
+
+    public void setMessage(CharSequence message) {
+        mContentMessage.setText(message);
     }
 
     private void initPositiveButton() {
@@ -298,7 +303,7 @@ public class MDialog extends Dialog {
         /**
          * 设置Dialog的标题
          */
-        public Builder setTitle(String title) {
+        public Builder setTitle(@Nullable String title) {
             mTitle = title;
             return this;
         }
@@ -386,7 +391,6 @@ public class MDialog extends Dialog {
          * @param text              按钮名称
          * @param isClickKeepDialog 点击按钮是否保持显示Dialog
          * @param listener          按钮点击监听器
-         * @return Builder对象
          */
         public Builder setPositiveButton(String text, boolean isClickKeepDialog, @Nullable OnClickListener listener) {
             mPosBtnText = text;
@@ -398,7 +402,6 @@ public class MDialog extends Dialog {
         /**
          * 设置positive按钮的相关属性
          *
-         * @return Builder对象
          * @see #setPositiveButton(String, boolean, OnClickListener)
          */
         public Builder setPositiveButton(@StringRes int textId, boolean isClickKeepDialog, @Nullable OnClickListener listener) {
@@ -410,7 +413,6 @@ public class MDialog extends Dialog {
          * 设置positive按钮的相关属性
          * 如果使用这个方法，则默认点击按钮后使Dialog消失
          *
-         * @return Builder对象
          * @see #setPositiveButton(String, boolean, OnClickListener)
          */
         public Builder setPositiveButton(String text, @Nullable OnClickListener listener) {
@@ -421,7 +423,6 @@ public class MDialog extends Dialog {
          * 设置positive按钮的相关属性
          * 如果使用这个方法，则默认点击按钮后使Dialog消失
          *
-         * @return Builder对象
          * @see #setPositiveButton(String, boolean, OnClickListener)
          */
         public Builder setPositiveButton(@StringRes int textId, @Nullable OnClickListener listener) {
@@ -431,7 +432,6 @@ public class MDialog extends Dialog {
         /**
          * 设置Negative按钮的相关属性
          *
-         * @return Builder对象
          * @see #setPositiveButton(String, boolean, OnClickListener)
          */
         public Builder setNegativeButton(String text, boolean isClickKeepDialog, @Nullable OnClickListener listener) {
@@ -444,7 +444,6 @@ public class MDialog extends Dialog {
         /**
          * 设置Negative按钮的相关属性
          *
-         * @return Builder对象
          * @see #setPositiveButton(String, boolean, OnClickListener)
          */
         public Builder setNegativeButton(@StringRes int textId, boolean isClickKeepDialog, @Nullable OnClickListener listener) {
@@ -455,7 +454,6 @@ public class MDialog extends Dialog {
          * 设置Negative按钮的相关属性
          * 如果使用这个方法，则默认点击按钮后使Dialog消失
          *
-         * @return Builder对象
          * @see #setPositiveButton(String, boolean, OnClickListener)
          */
         public Builder setNegativeButton(String text, @Nullable OnClickListener listener) {
@@ -466,7 +464,6 @@ public class MDialog extends Dialog {
          * 设置Negative按钮的相关属性
          * 如果使用这个方法，则默认点击按钮后使Dialog消失
          *
-         * @return Builder对象
          * @see #setPositiveButton(String, boolean, OnClickListener)
          */
         public Builder setNegativeButton(@StringRes int textId, @Nullable OnClickListener listener) {
@@ -477,7 +474,6 @@ public class MDialog extends Dialog {
         /**
          * 设置Neutral按钮的相关属性
          *
-         * @return Builder对象
          * @see #setPositiveButton(String, boolean, OnClickListener)
          */
         public Builder setNeutralButton(String text, boolean isClickKeepDialog, @Nullable OnClickListener listener) {
@@ -490,7 +486,6 @@ public class MDialog extends Dialog {
         /**
          * 设置Neutral按钮的相关属性
          *
-         * @return Builder对象
          * @see #setPositiveButton(String, boolean, OnClickListener)
          */
         public Builder setNeutralButton(@StringRes int textId, boolean isClickKeepDialog, @Nullable OnClickListener listener) {
@@ -501,7 +496,6 @@ public class MDialog extends Dialog {
          * 设置Neutral按钮的相关属性
          * 如果使用这个方法，则默认点击按钮后使Dialog消失
          *
-         * @return Builder对象
          * @see #setPositiveButton(String, boolean, OnClickListener)
          */
         public Builder setNeutralButton(String text, @Nullable OnClickListener listener) {
@@ -512,7 +506,6 @@ public class MDialog extends Dialog {
          * 设置Neutral按钮的相关属性
          * 如果使用这个方法，则默认点击按钮后使Dialog消失
          *
-         * @return Builder对象
          * @see #setPositiveButton(String, boolean, OnClickListener)
          */
         public Builder setNeutralButton(@StringRes int textId, @Nullable OnClickListener listener) {
@@ -527,8 +520,6 @@ public class MDialog extends Dialog {
 
         /**
          * 创建一个MDialog对象
-         *
-         * @return Builder对象
          */
         public MDialog create() {
             return new MDialog(this);
@@ -536,12 +527,9 @@ public class MDialog extends Dialog {
 
         /**
          * 创建一个MDialog对象并显示Dialog
-         *
-         * @return Builder对象
          */
         public void show() {
-            MDialog dialog = create();
-            dialog.show();
+            create().show();
         }
 
         /**

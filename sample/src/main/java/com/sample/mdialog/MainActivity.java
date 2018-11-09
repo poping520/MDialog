@@ -13,7 +13,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        new MDialog.Builder(this)
+        final MDialog mDialog = new MDialog.Builder(this)
                 .setHeaderBgColor(Color.BLACK)
                 .setHeaderPic(R.drawable.ic_android_black_48dp)
                 .setTitle("Hello Android")
@@ -22,6 +22,10 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("OK", true, null)
                 .setNegativeButton("NO", null)
                 .setNeutralButton("NEVER", null)
-                .show();
+                .create();
+
+        mDialog.setMessage("New Message");
+        mDialog.show();
+
     }
 }
