@@ -1,5 +1,8 @@
 package com.poping520.open.mdialog;
 
+import android.animation.ObjectAnimator;
+import android.animation.StateListAnimator;
+import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -20,6 +23,8 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -51,6 +56,8 @@ public class MDialog extends Dialog {
     private TextView mTitle, mContentMessage;
 
     private Button mBtnPositive, mBtnNegative, mBtnNeutral;
+
+    private OnClickListener mListener;
 
     @ColorInt
     private int mAccentColor;
@@ -132,19 +139,7 @@ public class MDialog extends Dialog {
     }
 
     private void initMessage() {
-
-        if (p.mHTMLMessage != null) {
-            // FROM_HTML_MODE_COMPACT: html块元素之间使用一个换行符分隔
-            // FROM_HTML_MODE_LEGACY: html块元素之间使用两个换行符分隔
-            mContentMessage.setText(
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ?
-                            Html.fromHtml(p.mHTMLMessage, Html.FROM_HTML_MODE_COMPACT) :
-                            Html.fromHtml(p.mHTMLMessage)
-            );
-            //超链接
-            mContentMessage.setMovementMethod(LinkMovementMethod.getInstance());
-        }
-
+        if (p.mHTMLMessage != null) setHTMLMessage(p.mHTMLMessage);
         if (p.mMessage != null) setMessage(p.mMessage);
         if (p.mMsgColor != null) mContentMessage.setTextColor(p.mMsgColor);
     }
@@ -157,14 +152,34 @@ public class MDialog extends Dialog {
         mContentMessage.setText(message);
     }
 
+    public void setHTMLMessage(@StringRes int htmlMessageId) {
+        setHTMLMessage(mContext.getString(htmlMessageId));
+    }
+
+    public void setHTMLMessage(String htmlMessage) {
+        // FROM_HTML_MODE_COMPACT: html块元素之间使用一个换行符分隔
+        // FROM_HTML_MODE_LEGACY: html块元素之间使用两个换行符分隔
+        mContentMessage.setText(
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ?
+                        Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_COMPACT) :
+                        Html.fromHtml(htmlMessage)
+        );
+        //超链接
+        mContentMessage.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
     private void initPositiveButton() {
         if (p.mPosBtnText != null) mBtnPositive.setText(p.mPosBtnText);
         else mBtnPositive.setText(R.string.mdialog_confirm);
 
-        //==================设置按钮背景 selector==================//
+        mBtnPositive.setOnClickListener(this::onClick);
+
+
+        //================== 按钮背景 selector ==================//
         float _2dp = Utils.dp2px(p.mContext, 2f);
         int _4dp = (int) Utils.dp2px(p.mContext, 4f);
         int _6dp = (int) Utils.dp2px(p.mContext, 6f);
+        int _12dp = (int) Utils.dp2px(p.mContext, 12f);
 
         GradientDrawable unPressed = new GradientDrawable();
         unPressed.setShape(GradientDrawable.RECTANGLE);
@@ -177,24 +192,60 @@ public class MDialog extends Dialog {
         pressed.setColor(Utils.getDarkerColor(mAccentColor, 0.12f));
 
         StateListDrawable selector = new StateListDrawable();
-        selector.addState(new int[]{-android.R.attr.state_pressed},
-                new InsetDrawable(unPressed, _4dp, _6dp, _4dp, _6dp));
-        selector.addState(new int[]{android.R.attr.state_pressed},
-                new InsetDrawable(pressed, _4dp, _6dp, _4dp, _6dp));
+        selector.addState(
+                new int[]{-android.R.attr.state_pressed},
+                new InsetDrawable(unPressed, _4dp, _6dp, _4dp, _6dp)
+        );
+        selector.addState(
+                new int[]{android.R.attr.state_pressed},
+                new InsetDrawable(pressed, _4dp, _6dp, _4dp, _6dp)
+        );
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
             mBtnPositive.setBackground(selector);
         else
             mBtnPositive.setBackgroundDrawable(selector);
-        //==================设置按钮背景 selector==================//
 
+        mBtnPositive.setPadding(_12dp, 0, _12dp, 0);
+        //================== 按钮背景 selector ==================//
+
+
+        //================== 按钮浮动动画 ==================//
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            int animTime = 150;
+            String propertyName = "translationZ";
+
+            final ObjectAnimator unPressedAnim = new ObjectAnimator();
+            unPressedAnim.setDuration(animTime);
+            unPressedAnim.setInterpolator(new AccelerateInterpolator());
+            unPressedAnim.setPropertyName(propertyName);
+            unPressedAnim.setFloatValues((float) _4dp);
+
+            final ObjectAnimator pressedAnim = new ObjectAnimator();
+            pressedAnim.setDuration(animTime);
+            pressedAnim.setInterpolator(new DecelerateInterpolator());
+            pressedAnim.setPropertyName(propertyName);
+            pressedAnim.setFloatValues(0f);
+
+            final StateListAnimator sinkAnim = new StateListAnimator();
+            sinkAnim.addState(
+                    new int[]{-android.R.attr.state_pressed}, unPressedAnim
+            );
+            sinkAnim.addState(
+                    new int[]{android.R.attr.state_pressed}, pressedAnim
+            );
+            mBtnPositive.setStateListAnimator(sinkAnim);
+        }
+        //================== 按钮浮动动画 ==================//
+
+
+        //================== 按钮字体颜色 ==================//
         if (Utils.getBrightness(mAccentColor) < 120f) {
             mBtnPositive.setTextColor(Color.WHITE);
         } else {
             mBtnPositive.setTextColor(new Palette.Swatch(mAccentColor, 0).getBodyTextColor());
         }
-
-        mBtnPositive.setOnClickListener(this::onClick);
+        //================== 按钮字体颜色 ==================//
     }
 
     private void initNegativeButton() {
@@ -217,26 +268,41 @@ public class MDialog extends Dialog {
 
     //按钮监听
     private void onClick(View v) {
-        int i = v.getId();
-        if (i == R.id.mdialog_positive_btn) {
+        final int id = v.getId();
+        MDialogAction action;
+
+        if (id == R.id.mdialog_positive_btn) {
+            action = MDialogAction.POSITIVE;
+
             if (p.mPosBtnListener != null)
                 p.mPosBtnListener.onClick(this, MDialogAction.POSITIVE);
 
             if (!p.isClickPosBtnKeepDialog) dismiss();
 
-        } else if (i == R.id.mdialog_negative_btn) {
+        } else if (id == R.id.mdialog_negative_btn) {
+            action = MDialogAction.NEGATIVE;
+
             if (p.mNegBtnListener != null)
                 p.mNegBtnListener.onClick(this, MDialogAction.NEGATIVE);
 
             if (!p.isClickNegBtnKeepDialog) dismiss();
 
-        } else if (i == R.id.mdialog_neutral_btn) {
+        } else {
+            action = MDialogAction.NEUTRAL;
+
             if (p.mNeuBtnListener != null)
                 p.mNeuBtnListener.onClick(this, MDialogAction.NEUTRAL);
 
             if (!p.isClickNeuBtnKeepDialog) dismiss();
-
         }
+
+        if (mListener != null) {
+            mListener.onClick(this, action);
+        }
+    }
+
+    public void setOnClickListener(OnClickListener listener) {
+        mListener = listener;
     }
 
     public Button getPositiveButton() {
@@ -247,6 +313,9 @@ public class MDialog extends Dialog {
         return mBtnNegative;
     }
 
+    public Button getNeutralButton() {
+        return mBtnNegative;
+    }
 
     public ViewGroup getRootViewGroup() {
         return mLayout;
