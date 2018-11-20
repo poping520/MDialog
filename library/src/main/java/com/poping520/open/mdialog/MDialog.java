@@ -2,21 +2,22 @@ package com.poping520.open.mdialog;
 
 import android.animation.ObjectAnimator;
 import android.animation.StateListAnimator;
-import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
-import android.os.Bundle;
 import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.StringRes;
 import android.support.v7.graphics.Palette;
 import android.text.Html;
@@ -134,7 +135,9 @@ public class MDialog extends Dialog {
             initMessage();
         } else {
             mContentLayout.removeAllViews();
-            mContentLayout.addView(p.mContentView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            mContentLayout.addView(p.mContentView,
+                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            );
         }
     }
 
@@ -353,10 +356,18 @@ public class MDialog extends Dialog {
             mContext = context;
         }
 
-
-        public Builder setHeaderBgColor(@ColorInt int color) {
+        public Builder setHeaderBgColorInt(@ColorInt int color) {
             mHeaderBgColorInt = color;
             return this;
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.M)
+        public Builder setHeaderBgColorRes(@ColorRes int colorId, Resources.Theme theme) {
+            return setHeaderBgColorInt(mContext.getResources().getColor(colorId, theme));
+        }
+
+        public Builder setHeaderBgColorRes(@ColorRes int colorId) {
+            return setHeaderBgColorInt(mContext.getResources().getColor(colorId));
         }
 
         public Builder setHeaderPic(@DrawableRes int resId) {
@@ -433,6 +444,19 @@ public class MDialog extends Dialog {
             return setHTMLMessage(getString(htmlMessageId));
         }
 
+        /**
+         * 设置含有HTML标签的内容信息
+         */
+        public Builder setHTMLMessage(String htmlMessage, Object... format) {
+            return setHTMLMessage(String.format(htmlMessage, format));
+        }
+
+        /**
+         * 设置含有HTML标签的内容信息
+         */
+        public Builder setHTMLMessage(@StringRes int htmlMessageId, Object... format) {
+            return setHTMLMessage(getString(htmlMessageId), format);
+        }
 
         /**
          * 设置标题字体颜色
@@ -476,7 +500,6 @@ public class MDialog extends Dialog {
         public Builder setPositiveButton(@StringRes int textId, boolean isClickKeepDialog, @Nullable OnClickListener listener) {
             return setPositiveButton(getString(textId), isClickKeepDialog, listener);
         }
-
 
         /**
          * 设置positive按钮的相关属性
@@ -539,7 +562,6 @@ public class MDialog extends Dialog {
             return setNegativeButton(textId, false, listener);
         }
 
-
         /**
          * 设置Neutral按钮的相关属性
          *
@@ -581,7 +603,9 @@ public class MDialog extends Dialog {
             return setNeutralButton(textId, false, listener);
         }
 
-
+        /**
+         * 屏蔽返回按钮
+         */
         public Builder setCancelable(boolean cancelable) {
             mCancelable = cancelable;
             return this;
