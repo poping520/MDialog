@@ -208,10 +208,11 @@ public class MDialog extends Dialog {
                 new InsetDrawable(pressed, _4dp, _6dp, _4dp, _6dp)
         );
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             mBtnPositive.setBackground(selector);
-        else
+        } else {
             mBtnPositive.setBackgroundDrawable(selector);
+        }
 
         mBtnPositive.setPadding(_12dp, 0, _12dp, 0);
         //================== 按钮背景 selector ==================//
@@ -256,8 +257,11 @@ public class MDialog extends Dialog {
     }
 
     private void initNegativeButton() {
-        if (p.mNegBtnText != null) mBtnNegative.setText(p.mNegBtnText);
-        else mBtnNegative.setText(R.string.mdialog_cancel);
+        if (p.mNegBtnText != null) {
+            mBtnNegative.setText(p.mNegBtnText);
+        } else {
+            mBtnNegative.setText(R.string.mdialog_cancel);
+        }
 
         mBtnNegative.setTextColor(mAccentColor);
         mBtnNegative.setOnClickListener(this::onClick);
@@ -265,8 +269,9 @@ public class MDialog extends Dialog {
 
     private void initNeutralButton() {
         //如果不设置 text 则不显示该按钮
-        if (p.mNeuBtnText == null) mBtnNeutral.setVisibility(View.INVISIBLE);
-        else {
+        if (p.mNeuBtnText == null) {
+            mBtnNeutral.setVisibility(View.INVISIBLE);
+        } else {
             mBtnNeutral.setText(p.mNeuBtnText);
             mBtnNeutral.setTextColor(mAccentColor);
             mBtnNeutral.setOnClickListener(this::onClick);
@@ -281,26 +286,36 @@ public class MDialog extends Dialog {
         if (id == R.id.mdialog_positive_btn) {
             action = MDialogAction.POSITIVE;
 
-            if (p.mPosBtnListener != null)
+            if (p.mPosBtnListener != null) {
                 p.mPosBtnListener.onClick(this, MDialogAction.POSITIVE);
 
-            if (!p.isClickPosBtnKeepDialog) dismiss();
+            }
+
+            if (!p.isClickPosBtnKeepDialog) {
+                dismiss();
+            }
 
         } else if (id == R.id.mdialog_negative_btn) {
             action = MDialogAction.NEGATIVE;
 
-            if (p.mNegBtnListener != null)
+            if (p.mNegBtnListener != null) {
                 p.mNegBtnListener.onClick(this, MDialogAction.NEGATIVE);
+            }
 
-            if (!p.isClickNegBtnKeepDialog) dismiss();
+            if (!p.isClickNegBtnKeepDialog) {
+                dismiss();
+            }
 
         } else {
             action = MDialogAction.NEUTRAL;
 
-            if (p.mNeuBtnListener != null)
+            if (p.mNeuBtnListener != null) {
                 p.mNeuBtnListener.onClick(this, MDialogAction.NEUTRAL);
+            }
 
-            if (!p.isClickNeuBtnKeepDialog) dismiss();
+            if (!p.isClickNeuBtnKeepDialog) {
+                dismiss();
+            }
         }
 
         if (mListener != null) {
