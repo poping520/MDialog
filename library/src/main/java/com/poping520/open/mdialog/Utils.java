@@ -14,13 +14,13 @@ import android.util.TypedValue;
 class Utils {
 
     static float dp2px(Context context, float dpValue) {
-        DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        final DisplayMetrics dm = context.getResources().getDisplayMetrics();
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, dm);
     }
 
     @ColorInt
     static int getDarkerColor(@ColorInt int color, float level) {
-        float[] hsv = new float[3];
+        final float[] hsv = new float[3];
         Color.colorToHSV(color, hsv);
         hsv[1] = hsv[1] + level;
         hsv[2] = hsv[2] - level;
@@ -29,7 +29,7 @@ class Utils {
 
     @ColorInt
     public static int getBrighterColor(@ColorInt int color) {
-        float[] hsv = new float[3];
+        final float[] hsv = new float[3];
         Color.colorToHSV(color, hsv);
         hsv[1] = hsv[1] - 0.1f;
         hsv[2] = hsv[2] + 0.1f;

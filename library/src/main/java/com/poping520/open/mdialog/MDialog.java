@@ -179,22 +179,26 @@ public class MDialog extends Dialog {
 
 
         //================== 按钮背景 selector ==================//
-        float _2dp = Utils.dp2px(p.mContext, 2f);
-        int _4dp = (int) Utils.dp2px(p.mContext, 4f);
-        int _6dp = (int) Utils.dp2px(p.mContext, 6f);
-        int _12dp = (int) Utils.dp2px(p.mContext, 12f);
 
-        GradientDrawable unPressed = new GradientDrawable();
-        unPressed.setShape(GradientDrawable.RECTANGLE);
+        // 四角弧度
+        final float _2dp = Utils.dp2px(p.mContext, 2f);
+        final int _4dp = (int) Utils.dp2px(p.mContext, 4f);
+        final int _6dp = (int) Utils.dp2px(p.mContext, 6f);
+        final int _12dp = (int) Utils.dp2px(p.mContext, 12f);
+
+        final GradientDrawable unPressed = new GradientDrawable();
+        final GradientDrawable pressed = new GradientDrawable();
+
         unPressed.setCornerRadius(_2dp);
-        unPressed.setColor(mAccentColor);
-
-        GradientDrawable pressed = new GradientDrawable();
-        pressed.setShape(GradientDrawable.RECTANGLE);
         pressed.setCornerRadius(_2dp);
+
+        unPressed.setShape(GradientDrawable.RECTANGLE);
+        pressed.setShape(GradientDrawable.RECTANGLE);
+
+        unPressed.setColor(mAccentColor);
         pressed.setColor(Utils.getDarkerColor(mAccentColor, 0.12f));
 
-        StateListDrawable selector = new StateListDrawable();
+        final StateListDrawable selector = new StateListDrawable();
         selector.addState(
                 new int[]{-android.R.attr.state_pressed},
                 new InsetDrawable(unPressed, _4dp, _6dp, _4dp, _6dp)
@@ -215,8 +219,8 @@ public class MDialog extends Dialog {
 
         //================== 按钮浮动动画 ==================//
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            int animTime = 150;
-            String propertyName = "translationZ";
+            final int animTime = 150;
+            final String propertyName = "translationZ";
 
             final ObjectAnimator unPressedAnim = new ObjectAnimator();
             unPressedAnim.setDuration(animTime);

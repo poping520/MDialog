@@ -1,6 +1,5 @@
 package com.sample.mdialog;
 
-import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -13,19 +12,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final MDialog mDialog = new MDialog.Builder(this)
-                .setHeaderBgColorInt(Color.BLACK)
-                .setHeaderPic(R.drawable.ic_android_black_48dp)
-                .setTitle("Hello Android")
-                .setMessage("This's a sample for MDialog")
-                .setCancelable(false)
-                .setPositiveButton("OK", true, null)
-                .setNegativeButton("NO NO NO NO", null)
-                .setNeutralButton("NEVER", null)
-                .create();
+        findViewById(R.id.btn).setOnClickListener(v -> {
+            final MDialog mDialog = new MDialog.Builder(MainActivity.this)
+                    .setHeaderBgColorRes(R.color.colorPrimary)
+                    .setHeaderPic(R.drawable.ic_android_black_48dp)
+                    .setTitle("Hello Android")
+                    .setHTMLMessage("NORMAL <b>BOLD</b>")
+                    .setCancelable(false)
+                    .setPositiveButton("OK OK", true, null)
+                    .setNegativeButton("NO NO", null)
+                    .setNeutralButton("NEVER", null)
+                    .create();
 
-        mDialog.setMessage("New Message");
-        mDialog.show();
-
+            mDialog.show();
+        });
     }
 }
